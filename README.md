@@ -1,58 +1,47 @@
-IEEE-CIS Credit Card Fraud Detection
-Overview
-This repository contains a robust, end-to-end Machine Learning pipeline designed to detect fraudulent credit card transactions. Based on the Kaggle IEEE-CIS Fraud Detection dataset, the project tackles the inherent challenges of highly imbalanced financial data (approx. 3.5% fraud rate) through advanced feature engineering, rigorous cross-validation, and algorithmic penalization.
+# 💳 IEEE-CIS Credit Card Fraud Detection
+> A High-Precision Machine Learning Pipeline for Highly Imbalanced Financial Data.
 
-Key Engineering Highlights
-Advanced Feature Engineering: Extracted temporal behavioral patterns by converting raw TransactionDT (seconds) into localized TransactionHour and TransactionDay features, significantly boosting the model's ability to detect anomalous nighttime and weekend activities.
+![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-1.7%2B-orange?style=for-the-badge)
+![Scikit-Learn](https://img.shields.io/badge/scikit--learn-0.24%2B-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-1.3%2B-150458?style=for-the-badge&logo=pandas&logoColor=white)
 
-Handling Extreme Imbalance: Instead of using traditional (and often flawed) resampling techniques like SMOTE, the class imbalance was handled natively within the XGBoost algorithm using optimal scale_pos_weight penalization, acting as a high-precision "sniper" for fraudulent transactions.
+## 📌 Project Overview
+Detecting fraudulent credit card transactions is challenging due to the extreme imbalance of real-world financial data (only **~3.5%** of transactions are fraudulent). This project utilizes the Kaggle IEEE-CIS dataset to build a robust, production-ready XGBoost model that maximizes precision and recall without relying on artificial oversampling (like SMOTE). 
 
-Robust Validation Strategy: Implemented a 5-Fold Stratified Cross-Validation strategy to ensure the model generalizes perfectly to unseen data without overfitting (Data Leakage prevention).
+## ✨ Key Engineering Highlights
 
-Algorithmic Selection & Ensemble Testing: Conducted empirical tests comparing a Soft Voting Ensemble (Random Forest + XGBoost + Multi-layer Perceptron) against a standalone Tuned XGBoost model. The analysis proved that for tabular, highly imbalanced data, the optimized XGBoost outperformed the diluted probabilities of the ensemble model.
+* ⏱️ **Temporal Feature Engineering:** Transformed raw `TransactionDT` (seconds) into localized `TransactionHour` and `TransactionDay` features. This successfully captured the behavioral patterns of fraudsters (e.g., late-night spikes).
+* ⚖️ **Algorithmic Penalization:** Handled the extreme class imbalance natively by optimizing XGBoost's `scale_pos_weight` parameter, forcing the model to heavily penalize false negatives.
+* 🛡️ **Leakage-Proof Validation:** Implemented **5-Fold Stratified Cross-Validation** to ensure the model generalizes effectively to unseen data without overfitting.
+* 🧠 **Ensemble vs. Standalone Analysis:** Conducted empirical tests comparing a Soft Voting Ensemble (Random Forest + XGBoost + MLP Neural Network) against a tuned XGBoost model, proving that optimized Gradient Boosting outperforms diluted ensemble probabilities on this specific tabular dataset.
 
-Model Performance & Metrics
-The final XGBoost model achieved near-champion tier performance on the validation folds:
+---
 
-Average AUC-ROC: 0.9572 (Excellent class separation capability)
+## 📊 Model Performance
 
-Average AUPRC: 0.7546 (High precision and recall on the minority fraud class)
+| Model Architecture | Cross-Validation | AUC-ROC Score | AUPRC Score |
+| :--- | :---: | :---: | :---: |
+| **Optimized XGBoost (Final)** | 5-Fold Stratified | **0.9572** | **0.7546** |
+| Soft Voting Ensemble (XGB+RF+MLP) | 5-Fold Stratified | 0.9426 | 0.6965 |
 
-Project Structure
-1_data_prep.py: Merges transaction and identity tables, handling extreme null values (dropping columns with >80% missing data).
+> **Note on Metrics:** While AUC-ROC shows excellent overall separation, the **0.7546 AUPRC** is the critical success metric here, demonstrating a "sniper-like" precision in catching frauds within a heavily skewed (3%) minority class.
 
-2_feature_engineering.py: Imputes missing numeric values (-999 strategy) and applies LabelEncoder for categorical variables.
+---
 
-3_hyperparameter_tuning.py: Utilizes RandomizedSearchCV to find the optimal tree depth, learning rate, and estimators.
+## 📂 Project Structure
 
-4_model_training.py: The core training script featuring temporal engineering, 5-Fold CV, and model serialization (joblib).
-
-5_ultimate_ensemble.py: Experimental script comparing an MLP/RF/XGB ensemble approach.
-
-feature_importance_v2.png: Visual output demonstrating the high predictive power of the engineered temporal features.
-
-How to Run
-Clone the repository and install the required dependencies:
-
-Bash
-pip install pandas numpy scikit-learn xgboost matplotlib joblib
-Ensure the Kaggle dataset (train_transaction.csv and train_identity.csv) is placed inside a data/ folder.
-
-Run the scripts sequentially:
-
-Bash
-python 1_data_prep.py
-python 2_feature_engineering.py
-python 4_model_training.py
-The trained model will be saved in the models/ directory as a .pkl file.
-
-Technologies Used
-Python 3.x
-
-XGBoost (Gradient Boosting)
-
-Scikit-Learn (Preprocessing, Validation, MLP, Random Forest)
-
-Pandas & NumPy (Data Manipulation)
-
-Matplotlib (Feature Importance Visualization)
+```text
+├── data/
+│   ├── train_transaction.csv      # Raw Kaggle data (not included in repo)
+│   ├── train_identity.csv         # Raw Kaggle data (not included in repo)
+│   └── train_final.csv            # Cleaned & Engineered data
+├── models/
+│   ├── best_fraud_model_v2.pkl    # Serialized Final XGBoost Model
+│   └── scaler.pkl                 # StandardScaler for MLP tests
+├── 1_data_prep.py                 # Merging & Null handling (>80% drops)
+├── 2_feature_engineering.py       # Imputation (-999 strategy) & Encoding
+├── 3_model_training.py            # Feature Eng., Training, and 5-Fold CV
+├── 4_ultimate_ensemble.py         # Experimental RF + XGB + MLP Voting System
+├── feature_importance_v2.png      # Feature importance graph
+└── README.md
